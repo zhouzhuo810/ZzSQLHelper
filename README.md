@@ -5,6 +5,25 @@ A powerful sqlite framework that supports ORM and Cursor mode.
 
 · 支持ORM和Cursor两种操作模式；
 
+Gradle:
+
+```
+compile 'me.zhouzhuo.zzsqlhelper:zz-sql-helper:1.0.0'
+
+```
+
+Maven:
+
+```
+<dependency>
+  <groupId>me.zhouzhuo.zzsqlhelper</groupId>
+  <artifactId>zz-sql-helper</artifactId>
+  <version>1.0.0</version>
+  <type>pom</type>
+</dependency>
+```
+
+
 #### 推荐用法：
 
 定义一个单例模式工具类(完成数据库配置、建表和数据库升级操作)：
@@ -192,4 +211,10 @@ public class MyApplication extends Application {
                 .build();
         DbUtils.getInstance(this).execSQL(sql);
 ```
+
+
+## Contact Me
+
+Email ： admin@zhouzhuo.me
+QQ群： 154107392 欢迎提意见
 
