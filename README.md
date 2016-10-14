@@ -85,7 +85,7 @@ public class MyApplication extends Application {
 ## ORM模式：
 
 1.定义实体类，表名就是实体类名， 字段名就是属性名，
-  使用@Column()注解可以控制字段是否保存和获取
+  使用@Column()注解可以控制字段是否保存和获取,不加注解时默认保存。
 
 
 ```java
@@ -96,7 +96,7 @@ public class MyApplication extends Application {
         //save=false时，不保存和读取该字段
         @Column(save = false)
         private String name;
-        //默认save=true
+        //默认save=true,不加时默认保存。
         @Column()
         private String phone;
 
