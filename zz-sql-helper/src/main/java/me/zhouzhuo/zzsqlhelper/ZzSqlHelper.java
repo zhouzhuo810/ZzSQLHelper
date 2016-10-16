@@ -168,6 +168,7 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
+
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public <T> T findById(Class<T> clazz, int id) {
         Cursor cursor = findById(clazz.getSimpleName(), id);
@@ -217,6 +218,7 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
                         }
                         columnsAndOptions.append(name).append(",");
                         values.append(value).append(",");
+                        break;
                     case "boolean":
                         boolean value1 = false;
                         try {
@@ -535,6 +537,24 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
             cursor.close();
         Logger.d(list.toString());
         return list;
+    }
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    public <T> T findFirst(Class<T> clz) {
+        T t = null;
+        String  sql = "SELECT * FROM "+clz.getSimpleName();
+        Logger.d(sql);
+        Cursor cursor = findAll(sql);
+        if (cursor.moveToFirst()) {
+            try {
+                t = CursorUtils.getEntity(clz, cursor);
+            } catch (ReflectiveOperationException e) {
+                e.printStackTrace();
+            }
+        }
+        if (!cursor.isClosed())
+            cursor.close();
+        return t;
     }
 
 }
