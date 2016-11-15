@@ -52,7 +52,7 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
         this.listener = listener;
         if (sql != null && sql.size() > 0) {
             try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && mDb.isWriteAheadLoggingEnabled()) {
+                if (Build.VERSION.SDK_INT >= 16 && mDb.isWriteAheadLoggingEnabled()) {
                     mDb.beginTransactionNonExclusive();
                 } else {
                     mDb.beginTransaction();
@@ -67,7 +67,7 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
         }
         if (tableEntity != null && tableEntity.size() > 0) {
             try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && mDb.isWriteAheadLoggingEnabled()) {
+                if (Build.VERSION.SDK_INT >= 16 && mDb.isWriteAheadLoggingEnabled()) {
                     mDb.beginTransactionNonExclusive();
                 } else {
                     mDb.beginTransaction();
