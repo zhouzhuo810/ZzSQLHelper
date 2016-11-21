@@ -5,6 +5,9 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import me.zhouzhuo.zzsqlhelper.ZzSqlHelper;
 
 /**
@@ -17,7 +20,7 @@ public class DbUtils {
     private DbUtils() {
     }
 
-    public static ZzSqlHelper getInstance(Context context) {
+/*    public static ZzSqlHelper getInstance(Context context) {
         if (helper == null) {
             synchronized (DbUtils.class) {
                 if (helper == null) {
@@ -27,6 +30,31 @@ public class DbUtils {
 //                            .addTableSql("create table if not exists student (id integer primary key , name varchar, phone varchar)")
                             .addTableEntity(TestEntity.StudentEntity.class)
                             .setUpgradeListener(new ZzSqlHelper.Builder.UpgradeListener() {
+                                @Override
+                                public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+                                    if (oldVersion != 0 && db != null && db.isOpen()) {
+                                        db.execSQL("drop table studententity");
+                                    }
+                                }
+                            })
+                            .create(context);
+                }
+            }
+        }
+        return helper;
+    }*/
+
+
+    public static ZzSqlHelper getInstance(Context context) {
+        if (helper == null) {
+            synchronized (DbUtils.class) {
+                if (helper == null) {
+                    helper = new ZzSqlHelper.Builder()
+                            .setDbName("hello")
+                            .setVersion(13)
+//                            .addTableSql("create table if not exists student (id integer primary key , name varchar, phone varchar)")
+                            .addTableEntity(TestEntity.StudentEntity.class)
+                            .setUpgradeListener(new ZzSqlHelper.UpgradeListener() {
                                 @Override
                                 public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
                                     if (oldVersion != 0 && db != null && db.isOpen()) {

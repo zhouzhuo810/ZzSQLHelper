@@ -1,6 +1,5 @@
 package me.zhouzhuo.zzsqlhelper;
 
-import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -8,13 +7,11 @@ import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
-import android.text.TextUtils;
 import android.util.Log;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import me.zhouzhuo.zzsqlhelper.utils.CursorUtils;
 import me.zhouzhuo.zzsqlhelper.utils.Logger;
@@ -24,26 +21,35 @@ import me.zhouzhuo.zzsqlhelper.utils.Logger;
  */
 public class ZzSqlHelper extends SQLiteOpenHelper {
 
-    private Builder.UpgradeListener listener;
+    private UpgradeListener listener;
     private SQLiteDatabase mDb;
     private List<String> sql;
 
+    private ZzSqlHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
+        super(context, name, factory, version, null);
+    }
+
+    public ZzSqlHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version, DatabaseErrorHandler errorHandler) {
+        this(context, name, factory, version);
+    }
+
     private ZzSqlHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version, SQLiteDatabase mDb) {
-        super(context, name, factory, version);
+        this(context, name, factory, version);
     }
 
     private ZzSqlHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version, DatabaseErrorHandler errorHandler, SQLiteDatabase mDb) {
-        super(context, name, factory, version, errorHandler);
+        this(context, name, factory, version);
     }
 
+
     private ZzSqlHelper(Context context, String name, List<String> sql, List<Class<?>> tableEntity,
-                        SQLiteDatabase.CursorFactory factory, int newVersion, Builder.UpgradeListener listener) {
+                        SQLiteDatabase.CursorFactory factory, int newVersion, UpgradeListener listener) {
         super(context, name, factory, newVersion);
         mDb = context.openOrCreateDatabase(name, 0, null);
         int oldVersion = mDb.getVersion();
         mDb.setVersion(newVersion);
         if (oldVersion != newVersion) {
-            Logger.d("onUpgrade: oldVersion = "+oldVersion + ", newVersion = " + newVersion);
+            Logger.d("onUpgrade: oldVersion = " + oldVersion + ", newVersion = " + newVersion);
             if (listener != null) {
                 listener.onUpgrade(mDb, oldVersion, newVersion);
             }
@@ -52,37 +58,48 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
         this.listener = listener;
         if (sql != null && sql.size() > 0) {
             try {
+                Log.e("ttt", "1");
                 if (Build.VERSION.SDK_INT >= 16 && mDb.isWriteAheadLoggingEnabled()) {
                     mDb.beginTransactionNonExclusive();
                 } else {
                     mDb.beginTransaction();
                 }
+                Log.e("ttt", "2");
                 for (String s : sql) {
                     mDb.execSQL(s);
                 }
+                Log.e("ttt", "3");
                 mDb.setTransactionSuccessful();
             } finally {
+                Log.e("ttt", "4");
                 mDb.endTransaction();
+                Log.e("ttt", "5");
             }
         }
         if (tableEntity != null && tableEntity.size() > 0) {
             try {
+                Log.e("ttt", "1");
                 if (Build.VERSION.SDK_INT >= 16 && mDb.isWriteAheadLoggingEnabled()) {
                     mDb.beginTransactionNonExclusive();
                 } else {
                     mDb.beginTransaction();
                 }
+                Log.e("ttt", "2");
                 for (Class<?> clz : tableEntity) {
                     mDb.execSQL(new SQLBuilder()
                             .from(clz)
                             .createTable()
                             .build());
                 }
+                Log.e("ttt", "3");
                 mDb.setTransactionSuccessful();
             } finally {
+                Log.e("ttt", "4");
                 mDb.endTransaction();
+                Log.e("ttt", "5");
             }
         }
+
     }
 
     @Override
@@ -92,6 +109,10 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
+    }
+
+    public static ZzSqlHelper newInstance(Context context, String dbName, List<String> tableSql, List<Class<?>> tableEntity, int version, UpgradeListener listener) {
+        return new ZzSqlHelper(context, dbName,tableSql,tableEntity, null, version, listener);
     }
 
     public static class Builder {
@@ -135,9 +156,10 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
             return new ZzSqlHelper(context, dbName, tableSql, tableEntity, null, version, listener);
         }
 
-        public interface UpgradeListener {
-            void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion);
-        }
+    }
+
+    public interface UpgradeListener {
+        void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion);
     }
 
     public void execSQL(String sql) {
@@ -151,25 +173,24 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
     }
 
     public Cursor findAll(String tableName, WhereBuilder b, String orderBy, String limit) {
-        Cursor cursor =  mDb.query(tableName, null, b.getWb(), b.getVb(), null, null, orderBy, limit);
+        Cursor cursor = mDb.query(tableName, null, b.getWb(), b.getVb(), null, null, orderBy, limit);
         CursorUtils.print(cursor);
         return cursor;
     }
 
     public Cursor findAll(String tableName, WhereBuilder b, String orderBy) {
-        Cursor cursor =  mDb.query(tableName, null, b.getWb(), b.getVb(), null, null, orderBy, null);
+        Cursor cursor = mDb.query(tableName, null, b.getWb(), b.getVb(), null, null, orderBy, null);
         CursorUtils.print(cursor);
         return cursor;
     }
 
     public Cursor findAll(String tableName, WhereBuilder b) {
-        Cursor cursor =  mDb.query(tableName, null, b.getWb(), b.getVb(), null, null, null, null);
+        Cursor cursor = mDb.query(tableName, null, b.getWb(), b.getVb(), null, null, null, null);
         CursorUtils.print(cursor);
         return cursor;
     }
 
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     public <T> T findById(Class<T> clazz, int id) {
         Cursor cursor = findById(clazz.getSimpleName(), id);
         if (cursor.moveToFirst()) {
@@ -178,7 +199,7 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
                 if (!cursor.isClosed())
                     cursor.close();
                 return t;
-            } catch (ReflectiveOperationException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -300,7 +321,6 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
     }
 
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     public void update(Object object, String... columns) {
         if (object != null) {
             ContentValues values = new ContentValues();
@@ -311,7 +331,7 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
                 Field f = object.getClass().getDeclaredField("id");
                 f.setAccessible(true);
                 id = f.getInt(object);
-            } catch (NoSuchFieldException | IllegalAccessException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -478,8 +498,6 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
         }
     }
 
-
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     public <T> List<T> findAll(Class<T> clz, String sql) {
         List<T> list = new ArrayList<>();
         Cursor cursor = findAll(sql);
@@ -487,7 +505,7 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
             try {
                 T t = CursorUtils.getEntity(clz, cursor);
                 list.add(t);
-            } catch (ReflectiveOperationException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -501,7 +519,6 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
         return mDb.rawQuery(sql, null);
     }
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     public <T> List<T> findAll(Class<T> clz, WhereBuilder b) {
         List<T> list = new ArrayList<>();
         Cursor cursor = findAll(clz.getSimpleName(), b);
@@ -509,7 +526,7 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
             try {
                 T t = CursorUtils.getEntity(clz, cursor);
                 list.add(t);
-            } catch (ReflectiveOperationException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -519,17 +536,16 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
         return list;
     }
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     public <T> List<T> findAll(Class<T> clz) {
         List<T> list = new ArrayList<>();
-        String  sql = "SELECT * FROM "+clz.getSimpleName();
+        String sql = "SELECT * FROM " + clz.getSimpleName();
         Logger.d(sql);
         Cursor cursor = findAll(sql);
         while (cursor.moveToNext()) {
             try {
                 T t = CursorUtils.getEntity(clz, cursor);
                 list.add(t);
-            } catch (ReflectiveOperationException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -539,16 +555,15 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
         return list;
     }
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     public <T> T findFirst(Class<T> clz) {
         T t = null;
-        String  sql = "SELECT * FROM "+clz.getSimpleName();
+        String sql = "SELECT * FROM " + clz.getSimpleName();
         Logger.d(sql);
         Cursor cursor = findAll(sql);
         if (cursor.moveToFirst()) {
             try {
                 t = CursorUtils.getEntity(clz, cursor);
-            } catch (ReflectiveOperationException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

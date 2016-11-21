@@ -24,7 +24,6 @@ public class TestEntity {
         private int id;
         @Column(save = false)
         private String name;
-        @Column(save = false)
         private String phone;
         private boolean isMan;
 
