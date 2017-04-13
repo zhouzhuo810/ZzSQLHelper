@@ -51,7 +51,7 @@ public class SQLBuilder {
         for (Field declaredField : declaredFields) {
             String name = declaredField.getName();
             Column annotation = declaredField.getAnnotation(Column.class);
-            if (annotation == null || !annotation.save()) {
+            if (annotation == null || annotation.save()) {
                 if (!name.equals("id") && !name.contains("$") && !name.equals("serialVersionUID")) {
                     if (declaredField.getType().getSimpleName().toLowerCase().equals("boolean")) {
                         b.append(",").append(name).append(INTEGER);

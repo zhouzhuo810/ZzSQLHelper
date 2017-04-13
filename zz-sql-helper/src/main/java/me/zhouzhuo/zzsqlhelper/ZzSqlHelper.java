@@ -13,6 +13,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.zhouzhuo.zzsqlhelper.anotation.Column;
 import me.zhouzhuo.zzsqlhelper.utils.CursorUtils;
 import me.zhouzhuo.zzsqlhelper.utils.Logger;
 
@@ -112,7 +113,7 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
     }
 
     public static ZzSqlHelper newInstance(Context context, String dbName, List<String> tableSql, List<Class<?>> tableEntity, int version, UpgradeListener listener) {
-        return new ZzSqlHelper(context, dbName,tableSql,tableEntity, null, version, listener);
+        return new ZzSqlHelper(context, dbName, tableSql, tableEntity, null, version, listener);
     }
 
     public static class Builder {
@@ -217,80 +218,83 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
         for (Field declaredField : declaredFields) {
             declaredField.setAccessible(true);
             String name = declaredField.getName();
-            if (!name.equals("id") && !name.equals("$change") && !name.equals("serialVersionUID")) {
-                String type = declaredField.getType().getSimpleName().toLowerCase();
-                switch (type) {
-                    case "string":
-                        String value2 = null;
-                        try {
-                            value2 = (String) declaredField.get(object);
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                        columnsAndOptions.append(name).append(",");
-                        values.append("'").append(value2).append("'").append(",");
-                        break;
-                    case "int":
-                        int value = 0;
-                        try {
-                            value = declaredField.getInt(object);
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                        columnsAndOptions.append(name).append(",");
-                        values.append(value).append(",");
-                        break;
-                    case "boolean":
-                        boolean value1 = false;
-                        try {
-                            value1 = declaredField.getBoolean(object);
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                        columnsAndOptions.append(name).append(",");
-                        values.append("'").append(value1 ? "1" : "0").append("'").append(",");
-                        break;
-                    case "float":
-                        float value3 = 0;
-                        try {
-                            value3 = declaredField.getFloat(object);
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                        columnsAndOptions.append(name).append(",");
-                        values.append(value3).append(",");
-                        break;
-                    case "long":
-                        long value4 = 0;
-                        try {
-                            value4 = declaredField.getLong(object);
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                        columnsAndOptions.append(name).append(",");
-                        values.append("'").append(value4).append("'").append(",");
-                        break;
-                    case "double":
-                        double value5 = 0;
-                        try {
-                            value5 = declaredField.getDouble(object);
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                        columnsAndOptions.append(name).append(",");
-                        values.append("'").append(value5).append("'").append(",");
-                        break;
-                    case "short":
-                        short value6 = 0;
-                        try {
-                            value6 = declaredField.getShort(object);
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                        columnsAndOptions.append(name).append(",");
-                        values.append("'").append(value6).append("'").append(",");
-                        break;
+            Column annotation = declaredField.getAnnotation(Column.class);
+            if (annotation == null || annotation.save()) {
+                if (!name.equals("id") && !name.equals("$change") && !name.equals("serialVersionUID")) {
+                    String type = declaredField.getType().getSimpleName().toLowerCase();
+                    switch (type) {
+                        case "string":
+                            String value2 = null;
+                            try {
+                                value2 = (String) declaredField.get(object);
+                            } catch (IllegalAccessException e) {
+                                e.printStackTrace();
+                            }
+                            columnsAndOptions.append(name).append(",");
+                            values.append("'").append(value2).append("'").append(",");
+                            break;
+                        case "int":
+                            int value = 0;
+                            try {
+                                value = declaredField.getInt(object);
+                            } catch (IllegalAccessException e) {
+                                e.printStackTrace();
+                            }
+                            columnsAndOptions.append(name).append(",");
+                            values.append(value).append(",");
+                            break;
+                        case "boolean":
+                            boolean value1 = false;
+                            try {
+                                value1 = declaredField.getBoolean(object);
+                            } catch (IllegalAccessException e) {
+                                e.printStackTrace();
+                            }
+                            columnsAndOptions.append(name).append(",");
+                            values.append("'").append(value1 ? "1" : "0").append("'").append(",");
+                            break;
+                        case "float":
+                            float value3 = 0;
+                            try {
+                                value3 = declaredField.getFloat(object);
+                            } catch (IllegalAccessException e) {
+                                e.printStackTrace();
+                            }
+                            columnsAndOptions.append(name).append(",");
+                            values.append(value3).append(",");
+                            break;
+                        case "long":
+                            long value4 = 0;
+                            try {
+                                value4 = declaredField.getLong(object);
+                            } catch (IllegalAccessException e) {
+                                e.printStackTrace();
+                            }
+                            columnsAndOptions.append(name).append(",");
+                            values.append("'").append(value4).append("'").append(",");
+                            break;
+                        case "double":
+                            double value5 = 0;
+                            try {
+                                value5 = declaredField.getDouble(object);
+                            } catch (IllegalAccessException e) {
+                                e.printStackTrace();
+                            }
+                            columnsAndOptions.append(name).append(",");
+                            values.append("'").append(value5).append("'").append(",");
+                            break;
+                        case "short":
+                            short value6 = 0;
+                            try {
+                                value6 = declaredField.getShort(object);
+                            } catch (IllegalAccessException e) {
+                                e.printStackTrace();
+                            }
+                            columnsAndOptions.append(name).append(",");
+                            values.append("'").append(value6).append("'").append(",");
+                            break;
 
+                    }
                 }
             }
         }
@@ -338,60 +342,63 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
             for (Field declaredField : declaredFields) {
                 declaredField.setAccessible(true);
                 String name = declaredField.getName();
-                boolean shouldUpdate = false;
-                if (columns == null) {
-                    shouldUpdate = true;
-                } else {
-                    for (String column : columns) {
-                        if (column.equals(name)) {
-                            shouldUpdate = true;
-                            break;
+                Column annotation = declaredField.getAnnotation(Column.class);
+                if (annotation == null || annotation.save()) {
+                    boolean shouldUpdate = false;
+                    if (columns == null || columns.length == 0) {
+                        shouldUpdate = true;
+                    } else {
+                        for (String column : columns) {
+                            if (column.equals(name)) {
+                                shouldUpdate = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (shouldUpdate) {
+                        String type = declaredField.getType().getSimpleName().toLowerCase();
+                        switch (type) {
+                            case "string":
+                                try {
+                                    values.put(name, (String) declaredField.get(object));
+                                } catch (IllegalAccessException e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                            case "int":
+                                try {
+                                    values.put(name, declaredField.getInt(object));
+                                } catch (IllegalAccessException e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                            case "boolean":
+                                try {
+                                    values.put(name, declaredField.getBoolean(object) ? 1 : 0);
+                                } catch (IllegalAccessException e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                            case "long":
+                                try {
+                                    values.put(name, declaredField.getLong(object));
+                                } catch (IllegalAccessException e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                            default:
+                                try {
+                                    values.put(name, "" + declaredField.get(object));
+                                } catch (IllegalAccessException e) {
+                                    e.printStackTrace();
+                                }
+                                break;
                         }
                     }
                 }
-                if (shouldUpdate) {
-                    String type = declaredField.getType().getSimpleName().toLowerCase();
-                    switch (type) {
-                        case "string":
-                            try {
-                                values.put(name, (String) declaredField.get(object));
-                            } catch (IllegalAccessException e) {
-                                e.printStackTrace();
-                            }
-                            break;
-                        case "int":
-                            try {
-                                values.put(name, declaredField.getInt(object));
-                            } catch (IllegalAccessException e) {
-                                e.printStackTrace();
-                            }
-                            break;
-                        case "boolean":
-                            try {
-                                values.put(name, declaredField.getBoolean(object) ? 1 : 0);
-                            } catch (IllegalAccessException e) {
-                                e.printStackTrace();
-                            }
-                            break;
-                        case "long":
-                            try {
-                                values.put(name, declaredField.getLong(object));
-                            } catch (IllegalAccessException e) {
-                                e.printStackTrace();
-                            }
-                            break;
-                        default:
-                            try {
-                                values.put(name, "" + declaredField.get(object));
-                            } catch (IllegalAccessException e) {
-                                e.printStackTrace();
-                            }
-                            break;
-                    }
-                }
-
             }
-            mDb.update(object.getClass().getSimpleName(), values, "id = ?", new String[]{"" + id});
+            if (values.size() > 0)
+                mDb.update(object.getClass().getSimpleName(), values, "id = ?", new String[]{"" + id});
         }
     }
 

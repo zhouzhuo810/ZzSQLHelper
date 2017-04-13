@@ -100,7 +100,8 @@ public class MainActivity extends FragmentActivity {
             //改
             entity.setMan(true);
             entity.setPhone("555");
-            DbUtils.getInstance(this).update(entity, "phone", "isMan");
+//            DbUtils.getInstance(this).update(entity, "phone", "isMan");
+            DbUtils.getInstance(this).update(entity);
         }
 
         //查
@@ -117,7 +118,7 @@ public class MainActivity extends FragmentActivity {
 
         String sql3 = b1.from(TestEntity.StudentEntity.class)
 //                .insert("name,phone", "'tt', 'yy'")
-                .insert(new String[]{"name", "phone"}, new String[]{"tt", "yy"})
+                .insert(new String[]{"isMan", "phone"}, new String[]{"0", "yy"})
                 .build();
         DbUtils.getInstance(this).execSQL(sql3);
 
@@ -126,7 +127,7 @@ public class MainActivity extends FragmentActivity {
         String sql34 = new SQLBuilder()
                 .from(TestEntity.StudentEntity.class)
                 .delete()
-                .where("name", "=", "tt")
+                .where("phone", "=", "yy")
                 .build();
         DbUtils.getInstance(this).execSQL(sql34);
 
@@ -152,7 +153,6 @@ public class MainActivity extends FragmentActivity {
         Cursor cursor = DbUtils.getInstance(MainActivity.this).findAll(sql1);
         while (cursor.moveToNext()) {
             Log.e("xxx", "id=" + cursor.getString(cursor.getColumnIndex("id")));
-            Log.e("xxx", "name=" + cursor.getString(cursor.getColumnIndex("name")));
             Log.e("xxx", "phone=" + cursor.getString(cursor.getColumnIndex("phone")));
             Log.e("xxx", "isMan=" + cursor.getInt(cursor.getColumnIndex("isMan")));
         }
