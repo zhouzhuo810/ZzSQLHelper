@@ -8,7 +8,7 @@ A powerful sqlite framework that supports ORM and Cursor mode.
 Gradle:
 
 ```
-compile 'me.zhouzhuo.zzsqlhelper:zz-sql-helper:1.0.1'
+compile 'me.zhouzhuo.zzsqlhelper:zz-sql-helper:1.0.3'
 
 ```
 
@@ -18,7 +18,7 @@ Maven:
 <dependency>
   <groupId>me.zhouzhuo.zzsqlhelper</groupId>
   <artifactId>zz-sql-helper</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.3</version>
   <type>pom</type>
 </dependency>
 ```
