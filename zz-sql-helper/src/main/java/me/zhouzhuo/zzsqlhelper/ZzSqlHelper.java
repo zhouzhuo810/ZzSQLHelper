@@ -356,6 +356,75 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
                         }
                     }
                     if (shouldUpdate) {
+                        if (!name.equals("id") && !name.equals("$change") && !name.equals("serialVersionUID")) {
+                            String type = declaredField.getType().getSimpleName().toLowerCase();
+                            switch (type) {
+                                case "string":
+                                    try {
+                                        values.put(name, (String) declaredField.get(object));
+                                    } catch (IllegalAccessException e) {
+                                        e.printStackTrace();
+                                    }
+                                    break;
+                                case "int":
+                                    try {
+                                        values.put(name, declaredField.getInt(object));
+                                    } catch (IllegalAccessException e) {
+                                        e.printStackTrace();
+                                    }
+                                    break;
+                                case "boolean":
+                                    try {
+                                        values.put(name, declaredField.getBoolean(object) ? 1 : 0);
+                                    } catch (IllegalAccessException e) {
+                                        e.printStackTrace();
+                                    }
+                                    break;
+                                case "long":
+                                    try {
+                                        values.put(name, declaredField.getLong(object));
+                                    } catch (IllegalAccessException e) {
+                                        e.printStackTrace();
+                                    }
+                                    break;
+                                default:
+                                    try {
+                                        values.put(name, "" + declaredField.get(object));
+                                    } catch (IllegalAccessException e) {
+                                        e.printStackTrace();
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+            if (values.size() > 0)
+                mDb.update(object.getClass().getSimpleName(), values, "id = ?", new String[]{"" + id});
+        }
+    }
+
+    public void update(int id, Object object, String... columns) {
+        ContentValues values = new ContentValues();
+        Field[] declaredFields = object.getClass().getDeclaredFields();
+        for (Field declaredField : declaredFields) {
+            declaredField.setAccessible(true);
+            String name = declaredField.getName();
+            Column annotation = declaredField.getAnnotation(Column.class);
+            if (annotation == null || annotation.save()) {
+                boolean shouldUpdate = false;
+                if (columns == null) {
+                    shouldUpdate = true;
+                } else {
+                    for (String column : columns) {
+                        if (column.equals(name)) {
+                            shouldUpdate = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldUpdate) {
+                    if (!name.equals("id") && !name.equals("$change") && !name.equals("serialVersionUID")) {
                         String type = declaredField.getType().getSimpleName().toLowerCase();
                         switch (type) {
                             case "string":
@@ -397,69 +466,6 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
                     }
                 }
             }
-            if (values.size() > 0)
-                mDb.update(object.getClass().getSimpleName(), values, "id = ?", new String[]{"" + id});
-        }
-    }
-
-    public void update(int id, Object object, String... columns) {
-        ContentValues values = new ContentValues();
-        Field[] declaredFields = object.getClass().getDeclaredFields();
-        for (Field declaredField : declaredFields) {
-            declaredField.setAccessible(true);
-            String name = declaredField.getName();
-            boolean shouldUpdate = false;
-            if (columns == null) {
-                shouldUpdate = true;
-            } else {
-                for (String column : columns) {
-                    if (column.equals(name)) {
-                        shouldUpdate = true;
-                        break;
-                    }
-                }
-            }
-            if (shouldUpdate) {
-                String type = declaredField.getType().getSimpleName().toLowerCase();
-                switch (type) {
-                    case "string":
-                        try {
-                            values.put(name, (String) declaredField.get(object));
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    case "int":
-                        try {
-                            values.put(name, declaredField.getInt(object));
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    case "boolean":
-                        try {
-                            values.put(name, declaredField.getBoolean(object) ? 1 : 0);
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    case "long":
-                        try {
-                            values.put(name, declaredField.getLong(object));
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    default:
-                        try {
-                            values.put(name, "" + declaredField.get(object));
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                }
-            }
-
         }
         mDb.update(object.getClass().getSimpleName(), values, "id = ?", new String[]{"" + id});
     }
@@ -518,7 +524,6 @@ public class ZzSqlHelper extends SQLiteOpenHelper {
         }
         if (!cursor.isClosed())
             cursor.close();
-        Logger.d(list.toString());
         return list;
     }
 

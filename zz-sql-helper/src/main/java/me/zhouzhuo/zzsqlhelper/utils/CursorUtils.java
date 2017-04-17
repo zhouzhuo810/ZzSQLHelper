@@ -31,13 +31,11 @@ public class CursorUtils {
         Log.e("xxx", columnCount + "");
         for (int i = 0; i < columnCount; i++) {
             String columnName = cursor.getColumnName(i);
-            Log.e("xxx", columnName);
             Field declaredField = t.getClass().getDeclaredField(columnName);
             declaredField.setAccessible(true);
             Column annotation = declaredField.getAnnotation(Column.class);
             if (annotation == null || annotation.save()) {
                 Class<?> type = declaredField.getType();
-                Log.e("xxx", type.getSimpleName());
                 switch (type.getSimpleName().toLowerCase()) {
                     case "string":
                         String value = cursor.getString(i);
